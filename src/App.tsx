@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { ConfigProvider } from 'antd';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './components/Login';
+import { SimpleLogin } from './components/SimpleLogin';
+import AuthDebug from './components/AuthDebug';
 import ModernLayout from './components/ModernLayout';
 import ModernDashboard from './components/ModernDashboard';
 import ModernCompanyApprovals from './components/ModernCompanyApprovals';
@@ -7,11 +13,157 @@ import PendingRequests from './components/PendingRequests';
 import ModernMRVReports from './pages/ModernMRVReports';
 import ModernCarbonCredits from './pages/ModernCarbonCredits';
 import ModernAuditCompliance from './pages/ModernAuditCompliance';
-import { ConfigProvider } from 'antd';
 import './App.css';
 
 const App: React.FC = () => {
-  const [activeItem, setActiveItem] = React.useState('dashboard');
+  return (
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#1890ff',
+          colorSuccess: '#52c41a',
+          colorWarning: '#fa8c16',
+          colorError: '#ff4d4f',
+          borderRadius: 8,
+          fontSize: 14,
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        },
+        components: {
+          Card: {
+            borderRadius: 12,
+            boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+          },
+          Button: {
+            borderRadius: 8,
+          },
+          Input: {
+            borderRadius: 8,
+          },
+          Select: {
+            borderRadius: 8,
+          },
+          Table: {
+            borderRadius: 12,
+          },
+        },
+      }}
+    >
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Debug route */}
+            <Route 
+              path="/auth-debug" 
+              element={<AuthDebug />} 
+            />
+            
+            {/* Simple login test */}
+            <Route 
+              path="/simple-login" 
+              element={<SimpleLogin />} 
+            />
+            
+            {/* Public route for login */}
+            <Route 
+              path="/login" 
+              element={<Login />} 
+            />
+            
+            {/* Protected routes */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedMainApp />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/companies" 
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedMainApp />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/pending-requests" 
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedMainApp />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/mrv" 
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedMainApp />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/credits" 
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedMainApp />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/audit" 
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedMainApp />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Root route - redirect to login by default */}
+            <Route 
+              path="/" 
+              element={<Navigate to="/login" replace />} 
+            />
+            
+            {/* Catch all - redirect to root */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ConfigProvider>
+  );
+};
+
+// Separate component for the main authenticated app
+const AuthenticatedMainApp: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Determine active item from URL path
+  const getActiveItemFromPath = (path: string) => {
+    if (path.includes('/companies')) return 'companies';
+    if (path.includes('/pending-requests')) return 'pending-requests';
+    if (path.includes('/mrv')) return 'mrv';
+    if (path.includes('/credits')) return 'credits';
+    if (path.includes('/audit')) return 'audit';
+    return 'dashboard'; // default
+  };
+
+  const [activeItem, setActiveItem] = React.useState(getActiveItemFromPath(location.pathname));
+
+  const handleNavigation = React.useCallback((item: string) => {
+    setActiveItem(item);
+    // Update URL based on navigation
+    const paths = {
+      'dashboard': '/dashboard',
+      'companies': '/companies',
+      'pending-requests': '/pending-requests',
+      'mrv': '/mrv',
+      'credits': '/credits',
+      'audit': '/audit'
+    };
+    navigate(paths[item as keyof typeof paths] || '/dashboard');
+  }, [navigate]);
 
   const getPageTitle = (item: string) => {
     const titles = {
@@ -102,56 +254,14 @@ const App: React.FC = () => {
   };
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: '#1890ff',
-          colorSuccess: '#52c41a',
-          colorWarning: '#fa8c16',
-          colorError: '#ff4d4f',
-          borderRadius: 8,
-          fontSize: 14,
-          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        },
-        components: {
-          Card: {
-            borderRadius: 12,
-            boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-          },
-          Button: {
-            borderRadius: 8,
-          },
-          Input: {
-            borderRadius: 8,
-          },
-          Select: {
-            borderRadius: 8,
-          },
-          Table: {
-            borderRadius: 12,
-          },
-        },
-      }}
+    <ModernLayout
+      title={getPageTitle(activeItem)}
+      subtitle={getPageSubtitle(activeItem)}
+      activeItem={activeItem}
+      onNavigate={handleNavigation}
     >
-      <Router>
-        <Routes>
-          <Route 
-            path="/*" 
-            element={
-              <ModernLayout
-                title={getPageTitle(activeItem)}
-                subtitle={getPageSubtitle(activeItem)}
-                activeItem={activeItem}
-                onNavigate={setActiveItem}
-              >
-                {renderContent()}
-              </ModernLayout>
-            } 
-          />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Router>
-    </ConfigProvider>
+      {renderContent()}
+    </ModernLayout>
   );
 };
 

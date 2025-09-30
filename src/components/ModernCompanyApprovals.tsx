@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   Table,
@@ -16,7 +16,9 @@ import {
   Avatar,
   Tooltip,
   Badge,
-  Alert
+  Alert,
+  message,
+  Spin
 } from 'antd';
 import {
   BuildOutlined,
@@ -28,10 +30,13 @@ import {
   CalendarOutlined,
   EnvironmentOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import { apiService } from '../services/api';
+import { Company } from '../types';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -46,82 +51,87 @@ const StyledCard = styled(Card)`
   }
 `;
 
-// Mock data
-const mockCompanies = [
-  {
-    id: 1,
-    name: 'Blue Carbon Ventures Ltd.',
-    type: 'Private Limited',
-    registrationNumber: 'BCV2024001',
-    location: 'Mumbai, Maharashtra',
-    projectType: 'Mangrove Restoration',
-    submissionDate: '2024-01-15',
-    status: 'approved',
-    contactPerson: 'Rajesh Kumar',
-    estimatedCredits: 15000,
-    priority: 'high'
-  },
-  {
-    id: 2,
-    name: 'Coastal Restoration Co.',
-    type: 'Corporation',
-    registrationNumber: 'CRC2024002',
-    location: 'Chennai, Tamil Nadu',
-    projectType: 'Seagrass Conservation',
-    submissionDate: '2024-01-20',
-    status: 'under_review',
-    contactPerson: 'Priya Sharma',
-    estimatedCredits: 12500,
-    priority: 'medium'
-  },
-  {
-    id: 3,
-    name: 'Marine Ecosystems Pvt Ltd.',
-    type: 'Private Limited',
-    registrationNumber: 'MEP2024003',
-    location: 'Kochi, Kerala',
-    projectType: 'Salt Marsh Protection',
-    submissionDate: '2024-01-25',
-    status: 'pending_documents',
-    contactPerson: 'Arun Nair',
-    estimatedCredits: 9200,
-    priority: 'low'
-  },
-  {
-    id: 4,
-    name: 'Sundarbans Conservation Ltd.',
-    type: 'Private Limited',
-    registrationNumber: 'SCL2024004',
-    location: 'Kolkata, West Bengal',
-    projectType: 'Mangrove Restoration',
-    submissionDate: '2024-01-28',
-    status: 'under_review',
-    contactPerson: 'Anita Roy',
-    estimatedCredits: 18000,
-    priority: 'high'
-  },
-  {
-    id: 5,
-    name: 'Gujarat Marine Protection',
-    type: 'Corporation',
-    registrationNumber: 'GMP2024005',
-    location: 'Ahmedabad, Gujarat',
-    projectType: 'Salt Marsh Protection',
-    submissionDate: '2024-02-01',
-    status: 'pending_documents',
-    contactPerson: 'Vikram Patel',
-    estimatedCredits: 8500,
-    priority: 'medium'
-  }
-];
-
 const ModernCompanyApprovals: React.FC = () => {
   const [activeTab, setActiveTab] = useState('all');
-  const [companies] = useState(mockCompanies);
-  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
+  const [approving, setApproving] = useState<string | null>(null);
+
+  const fetchCompanies = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Fetch companies based on active tab
+      let companies: Company[] = [];
+      
+      if (activeTab === 'approved') {
+        companies = await apiService.getApprovedCompanies();
+      } else if (activeTab === 'pending') {
+        companies = await apiService.getCompaniesByStatus('pending');
+      } else {
+        // For 'all' tab, get all available companies
+        companies = await apiService.getPendingCompanies();
+      }
+      
+      setCompanies(companies);
+      console.log(`Fetched ${companies.length} companies for tab: ${activeTab}`);
+    } catch (error) {
+      message.error('Failed to fetch company requests. Please try again.');
+      console.error('Error fetching companies:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab]);
+
+  // Fetch companies on component mount and when activeTab changes
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
+
+  const handleApproveCompany = async (companyId: string) => {
+    setApproving(companyId);
+    try {
+      const result = await apiService.approveCompany(companyId);
+      
+      if (result.success) {
+        message.success(result.message);
+        // Refresh the data
+        await fetchCompanies();
+        setIsModalVisible(false);
+      } else {
+        message.error(result.message);
+      }
+    } catch (error) {
+      message.error('Failed to approve company. Please try again.');
+      console.error('Error approving company:', error);
+    } finally {
+      setApproving(null);
+    }
+  };
+
+  const handleRejectCompany = async (companyId: string, reason?: string) => {
+    setApproving(companyId);
+    try {
+      const result = await apiService.rejectCompany(companyId, reason);
+      
+      if (result.success) {
+        message.success(result.message);
+        // Refresh the data
+        await fetchCompanies();
+        setIsModalVisible(false);
+      } else {
+        message.error(result.message);
+      }
+    } catch (error) {
+      message.error('Failed to reject company. Please try again.');
+      console.error('Error rejecting company:', error);
+    } finally {
+      setApproving(null);
+    }
+  };
 
   const getStatusTag = (status: string) => {
     switch (status) {
@@ -176,7 +186,7 @@ const ModernCompanyApprovals: React.FC = () => {
           <div>
             <div style={{ fontWeight: 600, marginBottom: '4px' }}>{record.name}</div>
             <div style={{ fontSize: '12px', color: '#666' }}>
-              {record.registrationNumber} • {record.type}
+              {record.regId || record.registrationNumber} • {record.type}
             </div>
           </div>
         </div>
@@ -234,13 +244,15 @@ const ModernCompanyApprovals: React.FC = () => {
               }}
             />
           </Tooltip>
-          {record.status === 'under_review' && (
+          {(record.status === 'under_review' || record.status === 'pending' || record.status === 'pending_documents') && (
             <>
               <Button 
                 type="primary" 
                 size="small" 
                 icon={<CheckOutlined />}
                 style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+                loading={approving === record.id}
+                onClick={() => handleApproveCompany(record.id)}
               >
                 Approve
               </Button>
@@ -248,6 +260,8 @@ const ModernCompanyApprovals: React.FC = () => {
                 danger 
                 size="small" 
                 icon={<CloseOutlined />}
+                loading={approving === record.id}
+                onClick={() => handleRejectCompany(record.id)}
               >
                 Reject
               </Button>
@@ -272,8 +286,8 @@ const ModernCompanyApprovals: React.FC = () => {
     if (searchText) {
       filtered = filtered.filter(company =>
         company.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        company.registrationNumber.toLowerCase().includes(searchText.toLowerCase()) ||
-        company.projectType.toLowerCase().includes(searchText.toLowerCase())
+        (company.registrationNumber || company.regId || '').toLowerCase().includes(searchText.toLowerCase()) ||
+        (company.projectType || '').toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
@@ -287,13 +301,22 @@ const ModernCompanyApprovals: React.FC = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: '24px' }}>
-        <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
-          Company Approvals
-        </Title>
-        <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
-          Manage company registrations and approval workflows with integrated pending requests
-        </Paragraph>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
+            Company Approvals
+          </Title>
+          <Paragraph style={{ margin: '8px 0 0 0', color: '#666' }}>
+            Manage company registrations and approval workflows with integrated pending requests
+          </Paragraph>
+        </div>
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={fetchCompanies}
+          loading={loading}
+        >
+          Refresh
+        </Button>
       </div>
 
       {/* Statistics Cards */}
@@ -382,10 +405,11 @@ const ModernCompanyApprovals: React.FC = () => {
 
       {/* Companies Table with Tabs - INCLUDING PENDING REQUESTS TAB */}
       <StyledCard>
-        <Tabs 
-          activeKey={activeTab} 
-          onChange={setActiveTab}
-          items={[
+        <Spin spinning={loading}>
+          <Tabs 
+            activeKey={activeTab} 
+            onChange={setActiveTab}
+            items={[
             {
               key: 'all',
               label: `All Companies (${companies.length})`,
@@ -466,6 +490,7 @@ const ModernCompanyApprovals: React.FC = () => {
             }
           ]}
         />
+        </Spin>
       </StyledCard>
 
       {/* Company Details Modal */}
@@ -475,7 +500,7 @@ const ModernCompanyApprovals: React.FC = () => {
             <Avatar style={{ backgroundColor: '#1890ff' }} icon={<BuildOutlined />} />
             <div>
               <div style={{ fontSize: '16px', fontWeight: 600 }}>{selectedCompany?.name}</div>
-              <div style={{ fontSize: '12px', color: '#666' }}>{selectedCompany?.registrationNumber}</div>
+              <div style={{ fontSize: '12px', color: '#666' }}>{selectedCompany?.regId || selectedCompany?.registrationNumber}</div>
             </div>
           </div>
         }
@@ -486,18 +511,26 @@ const ModernCompanyApprovals: React.FC = () => {
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Close
           </Button>,
-          selectedCompany?.status === 'under_review' && (
+          (selectedCompany?.status === 'under_review' || selectedCompany?.status === 'pending' || selectedCompany?.status === 'pending_documents') && (
             <Button 
               key="approve" 
               type="primary" 
               icon={<CheckOutlined />}
               style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+              loading={approving === selectedCompany?.id}
+              onClick={() => selectedCompany && handleApproveCompany(selectedCompany.id)}
             >
               Approve Company
             </Button>
           ),
-          selectedCompany?.status === 'under_review' && (
-            <Button key="reject" danger icon={<CloseOutlined />}>
+          (selectedCompany?.status === 'under_review' || selectedCompany?.status === 'pending' || selectedCompany?.status === 'pending_documents') && (
+            <Button 
+              key="reject" 
+              danger 
+              icon={<CloseOutlined />}
+              loading={approving === selectedCompany?.id}
+              onClick={() => selectedCompany && handleRejectCompany(selectedCompany.id)}
+            >
               Reject Application
             </Button>
           )
@@ -524,7 +557,7 @@ const ModernCompanyApprovals: React.FC = () => {
                 </div>
                 <div style={{ marginBottom: '16px' }}>
                   <Text strong>Priority:</Text>
-                  <div>{getPriorityBadge(selectedCompany.priority)}</div>
+                  <div>{selectedCompany.priority ? getPriorityBadge(selectedCompany.priority) : 'N/A'}</div>
                 </div>
               </Col>
               <Col span={12}>
@@ -547,17 +580,28 @@ const ModernCompanyApprovals: React.FC = () => {
               </Col>
             </Row>
             
-            {selectedCompany.status === 'under_review' && (
+            {(selectedCompany.status === 'under_review' || selectedCompany.status === 'pending' || selectedCompany.status === 'pending_documents') && (
               <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#fafafa', borderRadius: '8px' }}>
                 <Title level={5}>Quick Actions</Title>
                 <Space>
-                  <Button type="primary" icon={<CheckOutlined />} style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}>
+                  <Button 
+                    type="primary" 
+                    icon={<CheckOutlined />} 
+                    style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+                    loading={approving === selectedCompany.id}
+                    onClick={() => handleApproveCompany(selectedCompany.id)}
+                  >
                     Approve Application
                   </Button>
                   <Button icon={<ExclamationCircleOutlined />}>
                     Request Documents
                   </Button>
-                  <Button danger icon={<CloseOutlined />}>
+                  <Button 
+                    danger 
+                    icon={<CloseOutlined />}
+                    loading={approving === selectedCompany.id}
+                    onClick={() => handleRejectCompany(selectedCompany.id)}
+                  >
                     Reject Application
                   </Button>
                 </Space>

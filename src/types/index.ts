@@ -2,14 +2,28 @@ export interface Company {
   id: string;
   name: string;
   regId: string;
-  type: 'NGO' | 'Corporate' | 'Government' | 'Research';
+  type: 'NGO' | 'Corporate' | 'Government' | 'Research' | 'Private Limited' | 'Corporation';
   location: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'under_review' | 'pending_documents';
   email: string;
   phone: string;
   address: string;
   registrationDate: string;
   documents: string[];
+  // Additional fields for the company approval system
+  contactPerson?: string;
+  projectType?: string;
+  estimatedCredits?: number;
+  priority?: 'high' | 'medium' | 'low';
+  submissionDate?: string;
+  registrationNumber?: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: string;
 }
 
 export interface CarbonCredit {

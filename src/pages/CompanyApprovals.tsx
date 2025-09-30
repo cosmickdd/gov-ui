@@ -21,7 +21,7 @@ const CompanyApprovals: React.FC = () => {
     setLoading(true);
     try {
       const [pending, all] = await Promise.all([
-        apiService.getCompanies(),
+        apiService.getPendingCompanies(),
         apiService.getAllCompanies()
       ]);
       setPendingCompanies(pending);
@@ -44,11 +44,12 @@ const CompanyApprovals: React.FC = () => {
     if (!selectedCompany) return;
 
     try {
-      const result = await apiService.updateCompanyStatus(
-        selectedCompany.id,
-        actionType === 'approve' ? 'approved' : 'rejected',
-        approvalNotes
-      );
+      let result;
+      if (actionType === 'approve') {
+        result = await apiService.approveCompany(selectedCompany.id, approvalNotes);
+      } else {
+        result = await apiService.rejectCompany(selectedCompany.id, approvalNotes);
+      }
 
       if (result.success) {
         // Refresh data

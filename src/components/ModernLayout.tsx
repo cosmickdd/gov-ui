@@ -18,6 +18,7 @@ import {
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from 'styled-components';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -249,6 +250,19 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   onNavigate 
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const { logout } = useAuth();
+
+  const handleUserMenuClick = async (key: string) => {
+    if (key === 'logout') {
+      try {
+        await logout();
+        // Redirect will happen automatically via AuthContext
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    }
+    // Handle other menu items here if needed
+  };
 
   const userMenuItems = [
     {
@@ -437,7 +451,10 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
             </Badge>
 
             <Dropdown
-              menu={{ items: userMenuItems }}
+              menu={{ 
+                items: userMenuItems,
+                onClick: ({ key }) => handleUserMenuClick(key)
+              }}
               placement="bottomRight"
               trigger={['click']}
             >
