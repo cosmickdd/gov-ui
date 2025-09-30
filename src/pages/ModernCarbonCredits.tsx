@@ -52,7 +52,30 @@ const StyledCard = styled(Card)`
   }
   
   &.stat-card .ant-card-body {
-    padding: 20px;
+    padding: 16px;
+    
+    @media (min-width: 768px) {
+      padding: 20px;
+    }
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 767px) {
+    margin-bottom: 12px;
+    
+    .ant-card-body {
+      padding: 12px !important;
+    }
+    
+    .ant-card-head {
+      padding: 0 12px;
+      min-height: 48px;
+    }
+    
+    .ant-card-head-title {
+      font-size: 16px;
+      padding: 8px 0;
+    }
   }
   
   &.credit-card {
@@ -478,11 +501,13 @@ const CarbonCreditRegistry: React.FC = () => {
               dataSource={filteredCredits}
               columns={columns}
               rowKey="id"
+              scroll={{ x: 800 }}
               pagination={{
                 total: filteredCredits.length,
                 pageSize: 10,
-                showSizeChanger: true,
+                showSizeChanger: false,
                 showQuickJumper: true,
+                responsive: true,
                 showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total} credits`
               }}
             />

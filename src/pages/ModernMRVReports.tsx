@@ -50,16 +50,81 @@ const StyledCard = styled(Card)`
   }
   
   &.stat-card .ant-card-body {
-    padding: 20px;
+    padding: 16px;
+    
+    @media (min-width: 768px) {
+      padding: 20px;
+    }
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 767px) {
+    margin-bottom: 12px;
+    
+    .ant-card-body {
+      padding: 12px !important;
+    }
+    
+    .ant-card-head {
+      padding: 0 12px;
+      min-height: 48px;
+    }
+    
+    .ant-card-head-title {
+      font-size: 16px;
+      padding: 8px 0;
+    }
+  }
+`;
+
+const PageContainer = styled.div`
+  @media (max-width: 767px) {
+    .ant-typography h2 {
+      font-size: 20px !important;
+      margin-bottom: 8px !important;
+    }
+    
+    .ant-typography-paragraph {
+      font-size: 14px !important;
+      margin-bottom: 16px !important;
+    }
+    
+    .ant-statistic-title {
+      font-size: 12px !important;
+    }
+    
+    .ant-statistic-content-value {
+      font-size: 18px !important;
+    }
   }
 `;
 
 const FilterSection = styled.div`
   background: #fafafa;
-  padding: 20px;
+  padding: 16px;
   border-radius: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   border: 1px solid #f0f0f0;
+  
+  @media (min-width: 768px) {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  
+  @media (max-width: 767px) {
+    .ant-row {
+      margin: 0 -8px !important;
+    }
+    
+    .ant-col {
+      padding: 0 8px !important;
+      margin-bottom: 12px;
+    }
+    
+    .ant-input, .ant-select {
+      font-size: 14px;
+    }
+  }
 `;
 
 // Mock data
@@ -192,6 +257,8 @@ const MRVReports: React.FC = () => {
     {
       title: 'Project Details',
       key: 'project',
+      width: 250,
+      fixed: 'left' as const,
       render: (record: any) => (
         <div>
           <div style={{ fontWeight: 600, marginBottom: '4px' }}>{record.projectName}</div>
@@ -204,6 +271,8 @@ const MRVReports: React.FC = () => {
     {
       title: 'Carbon Sequestered',
       key: 'carbon',
+      width: 180,
+      responsive: ['md' as const],
       render: (record: any) => (
         <div>
           <div style={{ fontWeight: 500 }}>{record.carbonSequestered.toLocaleString()} tCO2e</div>
@@ -214,11 +283,14 @@ const MRVReports: React.FC = () => {
     {
       title: 'Status',
       key: 'status',
+      width: 120,
       render: (record: any) => getStatusTag(record.status)
     },
     {
       title: 'Compliance Score',
       key: 'compliance',
+      width: 140,
+      responsive: ['lg' as const],
       render: (record: any) => (
         <div style={{ width: '100px' }}>
           <Progress 
@@ -236,6 +308,8 @@ const MRVReports: React.FC = () => {
       title: 'Verifier',
       dataIndex: 'verifier',
       key: 'verifier',
+      width: 150,
+      responsive: ['lg' as const],
       render: (verifier: string) => (
         <div style={{ fontSize: '12px' }}>{verifier}</div>
       )
@@ -243,18 +317,20 @@ const MRVReports: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
+      width: 120,
+      fixed: 'right' as const,
       render: (record: any) => (
-        <Space>
-          <Button type="text" icon={<EyeOutlined />} onClick={() => setSelectedReport(record)} />
-          <Button type="text" icon={<DownloadOutlined />} />
+        <Space size="small">
+          <Button type="text" icon={<EyeOutlined />} size="small" onClick={() => setSelectedReport(record)} />
+          <Button type="text" icon={<DownloadOutlined />} size="small" />
         </Space>
       )
     }
   ];
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
+    <PageContainer>
+      <div style={{ marginBottom: '16px' }}>
         <Title level={2} style={{ margin: 0, fontWeight: 700 }}>
           MRV Reports
         </Title>
@@ -428,11 +504,13 @@ const MRVReports: React.FC = () => {
               dataSource={filteredReports}
               columns={columns}
               rowKey="id"
+              scroll={{ x: 800 }}
               pagination={{
                 total: filteredReports.length,
                 pageSize: 10,
-                showSizeChanger: true,
+                showSizeChanger: false,
                 showQuickJumper: true,
+                responsive: true,
                 showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total} reports`
               }}
             />
@@ -506,7 +584,7 @@ const MRVReports: React.FC = () => {
           )}
         </TabPane>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Badge, Button, Typography, Breadcrumb } from 'antd';
 import {
   DashboardOutlined,
@@ -26,22 +26,39 @@ const { Title, Text } = Typography;
 const StyledLayout = styled(Layout)`
   min-height: 100vh;
   background: #f0f2f5;
+  position: relative;
 `;
 
 const StyledHeader = styled(Header)`
   background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
-  padding: 0 32px !important;
+  padding: 0 16px !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
   z-index: 1000;
-  height: 80px !important;
-  line-height: 80px !important;
+  height: 64px !important;
+  line-height: 64px !important;
+
+  @media (min-width: 768px) {
+    padding: 0 32px !important;
+    height: 80px !important;
+    line-height: 80px !important;
+  }
 `;
 
 const StyledSider = styled(Sider)`
+  .ant-layout-sider-trigger {
+    background: rgba(0, 0, 0, 0.2) !important;
+    color: white !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.3) !important;
+    }
+  }
+
   .ant-layout-sider-children {
     background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);
     position: relative;
@@ -57,24 +74,54 @@ const StyledSider = styled(Sider)`
       pointer-events: none;
     }
   }
+
+  /* Mobile overlay behavior */
+  @media (max-width: 767px) {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    z-index: 1001 !important;
+    height: 100vh !important;
+    
+    &.ant-layout-sider-collapsed {
+      left: -100% !important;
+      transition: left 0.3s ease !important;
+    }
+    
+    &:not(.ant-layout-sider-collapsed) {
+      left: 0 !important;
+      transition: left 0.3s ease !important;
+    }
+  }
   
   .ant-menu {
     background: transparent !important;
     border: none !important;
     
     .ant-menu-item {
-      margin: 4px 8px !important;
+      margin: 2px 4px !important;
       border-radius: 8px !important;
-      min-height: 56px !important;
+      min-height: 48px !important;
       height: auto !important;
       display: flex !important;
       align-items: center !important;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      padding: 12px 16px !important;
+      padding: 8px 12px !important;
+      
+      @media (min-width: 768px) {
+        margin: 4px 8px !important;
+        min-height: 56px !important;
+        padding: 12px 16px !important;
+      }
       
       &:hover {
         background: rgba(255, 255, 255, 0.1) !important;
-        transform: translateX(4px);
+        transform: translateX(2px);
+        
+        @media (min-width: 768px) {
+          transform: translateX(4px);
+        }
       }
       
       &.ant-menu-item-selected {
@@ -89,41 +136,65 @@ const StyledSider = styled(Sider)`
       
       .ant-menu-item-icon {
         font-size: 16px;
-        margin-right: 12px;
+        margin-right: 8px;
         flex-shrink: 0;
         display: flex;
         align-items: flex-start;
         margin-top: 2px;
+        
+        @media (min-width: 768px) {
+          margin-right: 12px;
+        }
       }
       
       .ant-menu-title-content {
         flex: 1;
         overflow: hidden;
+        font-size: 14px;
+        
+        @media (min-width: 768px) {
+          font-size: 16px;
+        }
       }
     }
   }
 `;
 
 const LogoSection = styled.div`
-  padding: 24px 16px;
+  padding: 16px 12px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+  
+  @media (min-width: 768px) {
+    padding: 24px 16px;
+    margin-bottom: 16px;
+  }
   
   .logo-title {
     color: #ffffff;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
-    margin: 8px 0 4px 0;
+    margin: 4px 0 2px 0;
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    
+    @media (min-width: 768px) {
+      font-size: 20px;
+      margin: 8px 0 4px 0;
+    }
   }
   
   .logo-subtitle {
     color: rgba(255, 255, 255, 0.8);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    
+    @media (min-width: 768px) {
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
   }
 `;
 
@@ -132,42 +203,85 @@ const FooterSection = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 16px;
+  padding: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
   
+  @media (min-width: 768px) {
+    padding: 16px;
+  }
+  
   .footer-text {
     color: rgba(255, 255, 255, 0.6);
-    font-size: 10px;
-    line-height: 1.4;
+    font-size: 9px;
+    line-height: 1.3;
+    
+    @media (min-width: 768px) {
+      font-size: 10px;
+      line-height: 1.4;
+    }
   }
 `;
 
 const HeaderContent = styled.div`
   display: flex;
   align-items: center;
-  gap: 24px;
-  height: 80px;
+  gap: 12px;
+  height: 64px;
+  
+  @media (min-width: 768px) {
+    gap: 24px;
+    height: 80px;
+  }
 `;
 
 const BreadcrumbSection = styled.div`
   background: #ffffff;
-  padding: 20px 32px;
+  padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  
+  @media (min-width: 768px) {
+    padding: 20px 32px;
+  }
+`;
+
+const MobileOverlay = styled.div<{ visible: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: ${props => props.visible ? 'block' : 'none'};
+  
+  @media (min-width: 768px) {
+    display: none;
+  }
 `;
 
 const StyledContent = styled(Content)`
   margin: 0;
-  padding: 32px;
+  padding: 12px;
   background: #f0f2f5;
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - 120px);
+  
+  @media (min-width: 768px) {
+    padding: 32px;
+    min-height: calc(100vh - 140px);
+  }
   
   .content-wrapper {
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    border-radius: 8px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
     overflow: hidden;
+    
+    @media (min-width: 768px) {
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
   }
 `;
 
@@ -249,8 +363,25 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
   activeItem, 
   onNavigate 
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  // Better mobile-first responsive behavior
+  const [collapsed, setCollapsed] = useState(true); // Always start collapsed
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const { logout } = useAuth();
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setCollapsed(true); // Always collapse on mobile
+      }
+    };
+
+    handleResize(); // Call once on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleUserMenuClick = async (key: string) => {
     if (key === 'logout') {
@@ -300,13 +431,23 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
 
   return (
     <StyledLayout>
+      {/* Mobile overlay */}
+      <MobileOverlay 
+        visible={isMobile && !collapsed} 
+        onClick={() => setCollapsed(true)}
+      />
+      
       <StyledSider 
         trigger={null} 
         collapsible 
         collapsed={collapsed}
-        width={280}
-        collapsedWidth={80}
+        width={isMobile ? 260 : 280}
+        collapsedWidth={isMobile ? 0 : 80} // Hide completely on mobile
         theme="dark"
+        breakpoint="md"
+        onBreakpoint={(broken) => {
+          if (broken) setCollapsed(true);
+        }}
       >
         <LogoSection>
           <AnimatePresence mode="wait">
@@ -385,7 +526,13 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
                 )}
               </motion.div>
             ),
-            onClick: () => onNavigate(item.key)
+            onClick: () => {
+              onNavigate(item.key);
+              // Close mobile sidebar after navigation
+              if (isMobile) {
+                setCollapsed(true);
+              }
+            }
           }))}
           style={{ border: 'none' }}
         />
@@ -408,9 +555,9 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               style={{
-                fontSize: '18px',
-                width: 48,
-                height: 48,
+                fontSize: isMobile ? '20px' : '18px',
+                width: isMobile ? 44 : 48,
+                height: isMobile ? 44 : 48,
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
@@ -418,12 +565,32 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
                 borderRadius: '8px'
               }}
             />
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Title level={3} style={{ margin: 0, color: '#ffffff', fontWeight: 700, lineHeight: '1.2' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minWidth: 0 }}>
+              <Title 
+                level={window.innerWidth < 768 ? 4 : 3} 
+                style={{ 
+                  margin: 0, 
+                  color: '#ffffff', 
+                  fontWeight: 700, 
+                  lineHeight: '1.2',
+                  fontSize: window.innerWidth < 768 ? '16px' : '20px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
                 {title}
               </Title>
               {subtitle && (
-                <Text style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '14px', lineHeight: '1.2', marginTop: '2px' }}>
+                <Text style={{ 
+                  color: 'rgba(255, 255, 255, 0.85)', 
+                  fontSize: window.innerWidth < 768 ? '12px' : '14px', 
+                  lineHeight: '1.2', 
+                  marginTop: '2px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
                   {subtitle}
                 </Text>
               )}
@@ -431,24 +598,26 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
           </HeaderContent>
 
           <HeaderContent>
-            <Badge count={3} size="small" offset={[-2, 2]}>
-              <Button
-                type="text"
-                icon={<NotificationOutlined />}
-                style={{
-                  color: '#ffffff',
-                  fontSize: '18px',
-                  width: 48,
-                  height: 48,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}
-              />
-            </Badge>
+            {window.innerWidth >= 768 && (
+              <Badge count={3} size="small" offset={[-2, 2]}>
+                <Button
+                  type="text"
+                  icon={<NotificationOutlined />}
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '18px',
+                    width: 48,
+                    height: 48,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
+                />
+              </Badge>
+            )}
 
             <Dropdown
               menu={{ 
@@ -461,25 +630,27 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: '16px', 
+                gap: window.innerWidth < 768 ? '8px' : '16px', 
                 cursor: 'pointer',
-                padding: '12px 16px',
-                borderRadius: '12px',
+                padding: window.innerWidth < 768 ? '8px 12px' : '12px 16px',
+                borderRadius: window.innerWidth < 768 ? '8px' : '12px',
                 transition: 'all 0.3s ease',
                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 border: '1px solid rgba(255, 255, 255, 0.2)'
               }}>
-                <div style={{ textAlign: 'right', color: '#ffffff' }}>
-                  <div style={{ fontSize: '15px', fontWeight: 600, lineHeight: '1.2' }}>Dr. Rajesh Kumar</div>
-                  <div style={{ fontSize: '12px', opacity: 0.85, lineHeight: '1.2', marginTop: '2px' }}>Senior Administrator</div>
-                </div>
+                {window.innerWidth >= 768 && (
+                  <div style={{ textAlign: 'right', color: '#ffffff' }}>
+                    <div style={{ fontSize: '15px', fontWeight: 600, lineHeight: '1.2' }}>Dr. Rajesh Kumar</div>
+                    <div style={{ fontSize: '12px', opacity: 0.85, lineHeight: '1.2', marginTop: '2px' }}>Senior Administrator</div>
+                  </div>
+                )}
                 <Avatar 
-                  size={44} 
+                  size={window.innerWidth < 768 ? 36 : 44} 
                   style={{ 
                     backgroundColor: '#52c41a',
                     border: '2px solid rgba(255, 255, 255, 0.3)',
                     fontWeight: 600,
-                    fontSize: '16px'
+                    fontSize: window.innerWidth < 768 ? '14px' : '16px'
                   }}
                 >
                   RK
@@ -492,7 +663,7 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
         <BreadcrumbSection>
           <Breadcrumb 
             items={getBreadcrumbItems()}
-            style={{ fontSize: '14px', fontWeight: 500 }}
+            style={{ fontSize: window.innerWidth < 768 ? '12px' : '14px', fontWeight: 500 }}
           />
         </BreadcrumbSection>
 

@@ -33,53 +33,90 @@ const { Title, Text, Paragraph } = Typography;
 
 const DashboardContainer = styled.div`
   .ant-card {
-    border-radius: 12px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     border: 1px solid #f0f0f0;
+    
+    @media (min-width: 768px) {
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    }
     
     &.stat-card {
       background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
       
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        @media (min-width: 768px) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
       }
     }
     
     &.chart-card {
-      height: 400px;
+      height: 300px;
+      
+      @media (min-width: 768px) {
+        height: 400px;
+      }
       
       .ant-card-body {
         height: 100%;
-        padding: 24px;
+        padding: 16px;
+        
+        @media (min-width: 768px) {
+          padding: 24px;
+        }
       }
     }
   }
   
   .metric-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     color: #ffffff;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    
+    @media (min-width: 768px) {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
   }
   
   .activity-item {
-    padding: 16px;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 6px;
     background: #fafafa;
-    margin-bottom: 12px;
-    border-left: 4px solid #1890ff;
+    margin-bottom: 8px;
+    border-left: 3px solid #1890ff;
+    
+    @media (min-width: 768px) {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border-left: 4px solid #1890ff;
+    }
     
     &:hover {
       background: #f0f2f5;
-      transform: translateX(4px);
+      transform: translateX(2px);
       transition: all 0.2s ease;
+      
+      @media (min-width: 768px) {
+        transform: translateX(4px);
+      }
     }
   }
 `;
@@ -239,7 +276,7 @@ const ModernDashboard: React.FC = () => {
       </div>
 
       {/* Key Metrics */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} lg={6}>
           <StatCard
             title="Total Companies"
@@ -283,7 +320,7 @@ const ModernDashboard: React.FC = () => {
       </Row>
 
       {/* Charts Row */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={24} lg={16}>
           <Card 
             className="chart-card"
@@ -386,7 +423,7 @@ const ModernDashboard: React.FC = () => {
       </Row>
 
       {/* State Performance and Activities */}
-      <Row gutter={[24, 24]}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>
           <Card 
             title={
@@ -504,7 +541,7 @@ const ModernDashboard: React.FC = () => {
       </Row>
 
       {/* Additional Insights Row */}
-      <Row gutter={[24, 24]} style={{ marginTop: '32px' }}>
+      <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
         <Col xs={24} lg={12}>
           <Card 
             title={

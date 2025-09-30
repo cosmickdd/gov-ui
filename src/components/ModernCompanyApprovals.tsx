@@ -41,13 +41,22 @@ import { Company } from '../types';
 const { Title, Text, Paragraph } = Typography;
 
 const StyledCard = styled(Card)`
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   border: 1px solid #f0f0f0;
   
+  @media (min-width: 768px) {
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  }
+  
   &:hover {
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     transition: all 0.3s ease;
+    
+    @media (min-width: 768px) {
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
   }
 `;
 
@@ -191,16 +200,21 @@ const ModernCompanyApprovals: React.FC = () => {
           </div>
         </div>
       ),
-      width: 300
+      width: 280,
+      fixed: 'left' as const
     },
     {
       title: 'Project Type',
       dataIndex: 'projectType',
-      key: 'projectType'
+      key: 'projectType',
+      width: 150,
+      responsive: ['md' as const]
     },
     {
       title: 'Location',
       key: 'location',
+      width: 180,
+      responsive: ['lg' as const],
       render: (record: any) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <EnvironmentOutlined style={{ color: '#666' }} />
@@ -211,33 +225,41 @@ const ModernCompanyApprovals: React.FC = () => {
     {
       title: 'Status',
       key: 'status',
+      width: 120,
       render: (record: any) => getStatusTag(record.status)
     },
     {
       title: 'Priority',
       key: 'priority',
+      width: 100,
+      responsive: ['sm' as const],
       render: (record: any) => getPriorityBadge(record.priority)
     },
     {
-      title: 'Submission Date',
+      title: 'Date',
       dataIndex: 'submissionDate',
       key: 'submissionDate',
+      width: 120,
+      responsive: ['md' as const],
       render: (date: string) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <CalendarOutlined style={{ color: '#666' }} />
-          {date}
+          <span style={{ fontSize: '12px' }}>{date}</span>
         </div>
       )
     },
     {
       title: 'Actions',
       key: 'actions',
+      width: 200,
+      fixed: 'right' as const,
       render: (record: any) => (
-        <Space>
+        <Space size="small">
           <Tooltip title="View Details">
             <Button 
               type="text" 
               icon={<EyeOutlined />} 
+              size="small"
               onClick={() => {
                 setSelectedCompany(record);
                 setIsModalVisible(true);
@@ -418,10 +440,13 @@ const ModernCompanyApprovals: React.FC = () => {
                   dataSource={getFilteredCompanies('all')}
                   columns={columns}
                   rowKey="id"
+                  scroll={{ x: 800 }}
                   pagination={{
                     total: getFilteredCompanies('all').length,
                     pageSize: 10,
                     showQuickJumper: true,
+                    showSizeChanger: false,
+                    responsive: true,
                     showTotal: (total: number, range: number[]) => 
                       `${range[0]}-${range[1]} of ${total} companies`
                   }}
@@ -453,10 +478,13 @@ const ModernCompanyApprovals: React.FC = () => {
                     dataSource={getFilteredCompanies('pending')}
                     columns={columns}
                     rowKey="id"
+                    scroll={{ x: 800 }}
                     pagination={{
                       total: getFilteredCompanies('pending').length,
                       pageSize: 10,
                       showQuickJumper: true,
+                      showSizeChanger: false,
+                      responsive: true,
                       showTotal: (total: number, range: number[]) => 
                         `${range[0]}-${range[1]} of ${total} pending requests`
                     }}
@@ -478,10 +506,13 @@ const ModernCompanyApprovals: React.FC = () => {
                   dataSource={getFilteredCompanies('approved')}
                   columns={columns}
                   rowKey="id"
+                  scroll={{ x: 800 }}
                   pagination={{
                     total: getFilteredCompanies('approved').length,
                     pageSize: 10,
                     showQuickJumper: true,
+                    showSizeChanger: false,
+                    responsive: true,
                     showTotal: (total: number, range: number[]) => 
                       `${range[0]}-${range[1]} of ${total} approved companies`
                   }}

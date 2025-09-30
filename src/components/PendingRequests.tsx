@@ -59,6 +59,24 @@ const PageContainer = styled.div`
     border-left: 4px solid #ff4d4f;
     background: linear-gradient(135deg, #fff1f0 0%, #ffffff 100%);
   }
+
+  @media (max-width: 768px) {
+    .ant-card {
+      margin-bottom: 16px;
+    }
+    
+    .ant-statistic-title {
+      font-size: 12px;
+    }
+    
+    .ant-statistic-content-value {
+      font-size: 20px !important;
+    }
+    
+    .ant-table-wrapper {
+      overflow-x: auto;
+    }
+  }
 `;
 
 const ActionButton = styled(Button)`
@@ -229,6 +247,8 @@ const PendingRequests: React.FC = () => {
     {
       title: 'Company',
       key: 'company',
+      width: 250,
+      fixed: 'left' as const,
       render: (record: any) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Avatar size={40} style={{ backgroundColor: getPriorityColor(record.priority) }}>
@@ -244,6 +264,8 @@ const PendingRequests: React.FC = () => {
     {
       title: 'Applicant',
       key: 'applicant',
+      width: 200,
+      responsive: ['md' as const],
       render: (record: any) => (
         <div>
           <div style={{ fontWeight: 500 }}>{record.applicantName}</div>
@@ -254,6 +276,8 @@ const PendingRequests: React.FC = () => {
     {
       title: 'Project Details',
       key: 'project',
+      width: 250,
+      responsive: ['lg' as const],
       render: (record: any) => (
         <div>
           <div style={{ fontWeight: 500, marginBottom: '4px' }}>{record.projectType}</div>
@@ -270,6 +294,7 @@ const PendingRequests: React.FC = () => {
     {
       title: 'Status',
       key: 'status',
+      width: 120,
       render: (record: any) => {
         const config = getStatusConfig(record.status);
         return (
@@ -287,6 +312,8 @@ const PendingRequests: React.FC = () => {
     {
       title: 'Priority',
       key: 'priority',
+      width: 100,
+      responsive: ['sm' as const],
       render: (record: any) => (
         <Badge
           color={getPriorityColor(record.priority)}
@@ -297,37 +324,36 @@ const PendingRequests: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
+      width: 180,
+      fixed: 'right' as const,
       render: (record: any) => (
         <Space direction="vertical" size="small">
           <Button
             type="text"
             icon={<EyeOutlined />}
+            size="small"
             onClick={() => {
               setSelectedRequest(record);
               setIsDetailModalVisible(true);
             }}
           >
-            View Details
+            View
           </Button>
-          <Space>
+          <Space size="small">
             <ActionButton
               className="approve-btn"
               size="small"
               icon={<CheckOutlined />}
               loading={loading}
               onClick={() => handleApprove(record.id)}
-            >
-              Approve
-            </ActionButton>
+            />
             <ActionButton
               className="reject-btn"
               size="small"
               icon={<CloseOutlined />}
               loading={loading}
               onClick={() => handleReject(record.id)}
-            >
-              Reject
-            </ActionButton>
+            />
           </Space>
         </Space>
       )
@@ -415,10 +441,12 @@ const PendingRequests: React.FC = () => {
           dataSource={requests}
           columns={columns}
           rowKey="id"
+          scroll={{ x: 800 }}
           pagination={{
             pageSize: 10,
-            showSizeChanger: true,
+            showSizeChanger: false,
             showQuickJumper: true,
+            responsive: true,
             showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
           }}
           loading={loading}
