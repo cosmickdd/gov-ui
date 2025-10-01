@@ -163,37 +163,41 @@ const StyledSider = styled(Sider)`
 const LogoSection = styled.div`
   padding: 16px 12px;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+  backdrop-filter: blur(8px);
+  border-radius: 8px 8px 0 0;
   
   @media (min-width: 768px) {
     padding: 24px 16px;
     margin-bottom: 16px;
   }
   
-  .logo-title {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 700;
-    margin: 4px 0 2px 0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  .logo-full {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4)) brightness(1.1);
+    transition: all 0.3s ease;
     
-    @media (min-width: 768px) {
-      font-size: 20px;
-      margin: 8px 0 4px 0;
+    &:hover {
+      transform: scale(1.02);
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)) brightness(1.15);
     }
   }
   
-  .logo-subtitle {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  .logo-small {
+    width: 40px;
+    height: auto;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4)) brightness(1.1);
+    transition: all 0.3s ease;
     
-    @media (min-width: 768px) {
-      font-size: 12px;
-      letter-spacing: 1px;
+    &:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)) brightness(1.15);
     }
   }
 `;
@@ -458,8 +462,11 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="logo-title">NCCR Admin</div>
-                <div className="logo-subtitle">Blue Carbon Registry</div>
+                <img 
+                  src="/logo-gov.svg" 
+                  alt="NCCR Admin - Blue Carbon Registry"
+                  className="logo-full"
+                />
               </motion.div>
             ) : (
               <motion.div
@@ -468,9 +475,11 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.2 }}
               >
-                <Avatar size={40} style={{ backgroundColor: '#1890ff' }}>
-                  NCCR
-                </Avatar>
+                <img 
+                  src="/logo-gov-small.svg" 
+                  alt="NCCR"
+                  className="logo-small"
+                />
               </motion.div>
             )}
           </AnimatePresence>

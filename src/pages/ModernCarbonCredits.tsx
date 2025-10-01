@@ -18,7 +18,8 @@ import {
   Badge,
   Avatar,
   Tooltip,
-  Alert
+  Alert,
+  message
 } from 'antd';
 import {
   GoldOutlined,
@@ -341,7 +342,16 @@ const CarbonCreditRegistry: React.FC = () => {
               }}
             />
           </Tooltip>
-          <Button type="primary" size="small" icon={<ShoppingCartOutlined />}>
+          <Button 
+            type="primary" 
+            size="small" 
+            icon={<ShoppingCartOutlined />}
+            onClick={() => {
+              message.success(`Purchase initiated for ${record.availableCredits} credits from ${record.projectName}`);
+              setSelectedCredit(record);
+              setIsModalVisible(true);
+            }}
+          >
             Purchase
           </Button>
         </Space>
@@ -484,11 +494,32 @@ const CarbonCreditRegistry: React.FC = () => {
               </Col>
               <Col xs={24} sm={24} lg={8}>
                 <Space style={{ justifyContent: 'flex-end', width: '100%' }}>
-                  <Button icon={<FilterOutlined />}>Advanced Filters</Button>
+                  <Button 
+                    icon={<FilterOutlined />}
+                    onClick={() => {
+                      Modal.info({
+                        title: 'Advanced Filters',
+                        content: 'Advanced filtering options for carbon credits including date range, project type, vintage year, certification standard, and price range would be available here.',
+                        width: 600
+                      });
+                    }}
+                  >
+                    Advanced Filters
+                  </Button>
                   <Button icon={<ReloadOutlined />} onClick={() => window.location.reload()}>
                     Refresh
                   </Button>
-                  <Button type="primary" icon={<TransactionOutlined />}>
+                  <Button 
+                    type="primary" 
+                    icon={<TransactionOutlined />}
+                    onClick={() => {
+                      Modal.info({
+                        title: 'New Transaction',
+                        content: 'Carbon credit transaction form would be displayed here with options to buy, sell, or transfer credits.',
+                        width: 800
+                      });
+                    }}
+                  >
                     New Transaction
                   </Button>
                 </Space>
@@ -645,7 +676,15 @@ const CarbonCreditRegistry: React.FC = () => {
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Close
           </Button>,
-          <Button key="purchase" type="primary" icon={<ShoppingCartOutlined />}>
+          <Button 
+            key="purchase" 
+            type="primary" 
+            icon={<ShoppingCartOutlined />}
+            onClick={() => {
+              message.success(`Initiating purchase for ${selectedCredit?.availableCredits} credits from ${selectedCredit?.projectName}`);
+              setIsModalVisible(false);
+            }}
+          >
             Purchase Credits
           </Button>
         ]}

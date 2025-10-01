@@ -19,7 +19,8 @@ import {
   Alert,
   Checkbox,
   Tabs,
-  Statistic
+  Statistic,
+  message
 } from 'antd';
 import {
   UserOutlined,
@@ -567,7 +568,18 @@ const UserManagement: React.FC = () => {
         </Col>
         <Col xs={24} sm={8}>
           <Space style={{ float: 'right' }}>
-            <Button icon={<FilterOutlined />}>Advanced Filters</Button>
+            <Button 
+              icon={<FilterOutlined />}
+              onClick={() => {
+                Modal.info({
+                  title: 'Advanced Filters',
+                  content: 'Advanced filtering options including department, location, last login date, permission level, and creation date would be available here.',
+                  width: 600
+                });
+              }}
+            >
+              Advanced Filters
+            </Button>
             <Button icon={<UserAddOutlined />} onClick={handleAddUser}>
               Add User
             </Button>
@@ -625,7 +637,15 @@ const UserManagement: React.FC = () => {
             <div style={{ marginTop: '24px', textAlign: 'right' }}>
               <Space>
                 <Button onClick={() => setIsModalVisible(false)}>Cancel</Button>
-                <Button type="primary">Save Permissions</Button>
+                <Button 
+                  type="primary"
+                  onClick={() => {
+                    message.success(`Permissions updated successfully for ${selectedUser?.name}`);
+                    setIsModalVisible(false);
+                  }}
+                >
+                  Save Permissions
+                </Button>
               </Space>
             </div>
           </div>

@@ -24,7 +24,8 @@ import {
   Drawer,
   Upload,
   Form,
-  Radio
+  Radio,
+  message
 } from 'antd';
 import {
   SafetyCertificateOutlined,
@@ -412,7 +413,17 @@ const AuditCompliance: React.FC = () => {
             />
           </Tooltip>
           <Tooltip title="Download Report">
-            <Button type="text" icon={<DownloadOutlined />} />
+            <Button 
+              type="text" 
+              icon={<DownloadOutlined />}
+              onClick={() => {
+                message.success(`Downloading audit report: ${record.auditId}`);
+                const link = document.createElement('a');
+                link.href = `data:text/plain;charset=utf-8,Audit Report\\nAudit ID: ${record.auditId}\\nProject: ${record.projectName}\\nAuditor: ${record.auditor}\\nScore: ${record.score}%`;
+                link.download = `Audit_Report_${record.auditId}.txt`;
+                link.click();
+              }}
+            />
           </Tooltip>
         </Space>
       )
@@ -585,7 +596,18 @@ const AuditCompliance: React.FC = () => {
               </Col>
               <Col xs={24} sm={24} lg={8}>
                 <Space style={{ justifyContent: 'flex-end', width: '100%' }}>
-                  <Button icon={<FilterOutlined />}>Advanced Filters</Button>
+                  <Button 
+                    icon={<FilterOutlined />}
+                    onClick={() => {
+                      Modal.info({
+                        title: 'Advanced Filters',
+                        content: 'Advanced filtering options for audit date range, compliance score, auditor selection, and audit type would be available here.',
+                        width: 600
+                      });
+                    }}
+                  >
+                    Advanced Filters
+                  </Button>
                   <Button icon={<ReloadOutlined />} onClick={() => window.location.reload()}>
                     Refresh
                   </Button>
@@ -715,7 +737,18 @@ const AuditCompliance: React.FC = () => {
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Close
           </Button>,
-          <Button key="download" type="primary" icon={<DownloadOutlined />}>
+          <Button 
+            key="download" 
+            type="primary" 
+            icon={<DownloadOutlined />}
+            onClick={() => {
+              message.success('Downloading audit compliance report...');
+              const link = document.createElement('a');
+              link.href = 'data:text/plain;charset=utf-8,Audit Compliance Report\nGenerated: ' + new Date().toLocaleString();
+              link.download = 'Audit_Compliance_Report.txt';
+              link.click();
+            }}
+          >
             Download Report
           </Button>
         ]}
@@ -788,13 +821,28 @@ const AuditCompliance: React.FC = () => {
           </Form.Item>
           <Form.Item label="Documents">
             <Upload>
-              <Button icon={<UploadOutlined />}>Upload Documents</Button>
+              <Button 
+                icon={<UploadOutlined />}
+                onClick={() => {
+                  message.info('Document upload functionality would be available here.');
+                }}
+              >
+                Upload Documents
+              </Button>
             </Upload>
           </Form.Item>
           <Form.Item>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
               <Button onClick={() => setIsDrawerVisible(false)}>Cancel</Button>
-              <Button type="primary">Schedule Audit</Button>
+              <Button 
+                type="primary"
+                onClick={() => {
+                  message.success('Audit scheduled successfully!');
+                  setIsDrawerVisible(false);
+                }}
+              >
+                Schedule Audit
+              </Button>
             </Space>
           </Form.Item>
         </Form>

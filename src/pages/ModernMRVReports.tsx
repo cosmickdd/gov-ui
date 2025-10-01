@@ -14,7 +14,9 @@ import {
   Alert,
   Select,
   Input,
-  DatePicker
+  DatePicker,
+  Modal,
+  message
 } from 'antd';
 import {
   FileTextOutlined,
@@ -321,8 +323,29 @@ const MRVReports: React.FC = () => {
       fixed: 'right' as const,
       render: (record: any) => (
         <Space size="small">
-          <Button type="text" icon={<EyeOutlined />} size="small" onClick={() => setSelectedReport(record)} />
-          <Button type="text" icon={<DownloadOutlined />} size="small" />
+          <Button 
+            type="text" 
+            icon={<EyeOutlined />} 
+            size="small" 
+            onClick={() => {
+              setSelectedReport(record);
+              setActiveTab('details');
+              message.success(`Viewing details for ${record.projectName}`);
+            }}
+          />
+          <Button 
+            type="text" 
+            icon={<DownloadOutlined />} 
+            size="small"
+            onClick={() => {
+              message.success(`Downloading report: ${record.reportId}`);
+              // Simulate file download
+              const link = document.createElement('a');
+              link.href = `data:text/plain;charset=utf-8,MRV Report: ${record.reportId}\nProject: ${record.projectName}\nCarbon Sequestered: ${record.carbonSequestered} tCO2e`;
+              link.download = `MRV_Report_${record.reportId}.txt`;
+              link.click();
+            }}
+          />
         </Space>
       )
     }
@@ -565,16 +588,54 @@ const MRVReports: React.FC = () => {
               <Col xs={24} lg={8}>
                 <StyledCard title="Actions">
                   <Space direction="vertical" style={{ width: '100%' }}>
-                    <Button type="primary" icon={<DownloadOutlined />} block>
+                    <Button 
+                      type="primary" 
+                      icon={<DownloadOutlined />} 
+                      block
+                      onClick={() => {
+                        message.success(`Downloading full report: ${selectedReport?.reportId}`);
+                        const link = document.createElement('a');
+                        link.href = `data:text/plain;charset=utf-8,Full MRV Report\\nProject: ${selectedReport?.projectName}\\nReport ID: ${selectedReport?.reportId}\\nCarbon Sequestered: ${selectedReport?.carbonSequestered} tCO2e\\nProject Area: ${selectedReport?.projectArea} hectares\\nVerifier: ${selectedReport?.verifier}`;
+                        link.download = `Full_MRV_Report_${selectedReport?.reportId}.txt`;
+                        link.click();
+                      }}
+                    >
                       Download Full Report
                     </Button>
-                    <Button icon={<EyeOutlined />} block>
+                    <Button 
+                      icon={<EyeOutlined />} 
+                      block
+                      onClick={() => {
+                        Modal.info({
+                          title: 'Satellite Data Viewer',
+                          content: `Satellite imagery and remote sensing data for ${selectedReport?.projectName} would be displayed here with temporal analysis and change detection.`,
+                          width: 800
+                        });
+                      }}
+                    >
                       View Satellite Data
                     </Button>
-                    <Button icon={<CameraOutlined />} block>
+                    <Button 
+                      icon={<CameraOutlined />} 
+                      block
+                      onClick={() => {
+                        Modal.info({
+                          title: 'Field Photos Gallery',
+                          content: 'Field photo gallery would display ground truth photos, georeferenced images, and monitoring equipment data.',
+                          width: 800
+                        });
+                      }}
+                    >
                       Field Photos
                     </Button>
-                    <Button icon={<BarChartOutlined />} block>
+                    <Button 
+                      icon={<BarChartOutlined />} 
+                      block
+                      onClick={() => {
+                        message.success('Switching to analytics dashboard');
+                        setActiveTab('overview');
+                      }}
+                    >
                       Analytics Dashboard
                     </Button>
                   </Space>
